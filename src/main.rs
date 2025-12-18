@@ -218,7 +218,8 @@ impl eframe::App for TimerApp {
                             ui.label("Desktop Timer");
                             ui.label("Licensed under GPL v3");
                             ui.add_space(10.0);
-                            if ui.hyperlink_to("View on GitHub", GITHUB_URL).clicked() {
+                            if ui.button("View on GitHub").clicked() {
+                                let _ = open::that(GITHUB_URL);
                                 self.show_info = false;
                             }
                             ui.add_space(10.0);
