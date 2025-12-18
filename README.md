@@ -6,6 +6,8 @@
 
 A minimal, borderless desktop timer application built with Rust and egui.
 
+<img width="204" height="205" alt="image" src="https://github.com/user-attachments/assets/30cca0ba-2832-4a95-80cf-c80ea80332d0" />
+
 ## Features
 
 - Clean, minimal UI with no window decorations
