@@ -1,9 +1,18 @@
 [package]
 name = "timer-app"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
 
 [dependencies]
 eframe = "0.29"
 image = { version = "0.25", default-features = false, features = ["png"] }
 open = "5"
+
+[package.metadata.bundle]
+name = "Timer"
+identifier = "com.kartikay.timer-app"
+icon = ["icons/timer-app.icns"]
+version = "1.1.0"
+copyright = "Copyright (c) 2025 Kartikay Bagla. GPL v3"
+short_description = "A minimal desktop timer"
+osx_minimum_system_version = "15.1"

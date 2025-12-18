@@ -32,6 +32,8 @@ const FLASH_COLOR: (u8, u8, u8) = (255, 80, 80);
 const CLOSE_BTN_COLOR: (u8, u8, u8) = (150, 150, 150);
 const CLOSE_BTN_HOVER_COLOR: (u8, u8, u8) = (255, 100, 100);
 const INFO_BTN_HOVER_COLOR: (u8, u8, u8) = (100, 150, 255);
+const PIN_BTN_COLOR: (u8, u8, u8) = (150, 150, 150);
+const PIN_BTN_ACTIVE_COLOR: (u8, u8, u8) = (255, 255, 255);
 
 // Links
 const GITHUB_URL: &str = "https://github.com/kartikay-bagla/rust-gui-timer";
@@ -86,6 +88,7 @@ struct TimerApp {
     flash_on: bool,
     last_flash: Instant,
     show_info: bool,
+    always_on_top: bool,
 }
 
 impl Default for TimerApp {
@@ -99,6 +102,7 @@ impl Default for TimerApp {
             flash_on: false,
             last_flash: Instant::now(),
             show_info: false,
+            always_on_top: false,
         }
     }
 }
@@ -158,14 +162,58 @@ impl eframe::App for TimerApp {
                     ),
                     egui::vec2(CLOSE_BTN_SIZE, CLOSE_BTN_SIZE),
                 );
+                let pin_btn_rect = egui::Rect::from_min_size(
+                    egui::pos2(
+                        ui.max_rect().left() + CLOSE_BTN_MARGIN,
+                        ui.max_rect().top() + CLOSE_BTN_MARGIN,
+                    ),
+                    egui::vec2(CLOSE_BTN_SIZE, CLOSE_BTN_SIZE),
+                );
                 let title_bar_rect = egui::Rect::from_min_size(
-                    ui.max_rect().left_top(),
-                    egui::vec2(ui.max_rect().width() - (CLOSE_BTN_SIZE + CLOSE_BTN_MARGIN) * 2.0 - CLOSE_BTN_MARGIN, title_bar_height),
+                    egui::pos2(ui.max_rect().left() + CLOSE_BTN_SIZE + CLOSE_BTN_MARGIN * 2.0, ui.max_rect().top()),
+                    egui::vec2(ui.max_rect().width() - (CLOSE_BTN_SIZE + CLOSE_BTN_MARGIN) * 3.0 - CLOSE_BTN_MARGIN, title_bar_height),
                 );
 
                 // Drag window from title bar region (excluding buttons)
                 if ui.rect_contains_pointer(title_bar_rect) && ui.input(|i| i.pointer.primary_pressed()) {
                     ctx.send_viewport_cmd(egui::ViewportCommand::StartDrag);
+                }
+
+                // Draw pin button (circle in top-left)
+                let pin_hovered = ui.rect_contains_pointer(pin_btn_rect);
+                let pin_clicked = pin_hovered && ui.input(|i| i.pointer.primary_clicked());
+                let pin_center = pin_btn_rect.center();
+                let pin_radius = (CLOSE_BTN_SIZE - CLOSE_BTN_PADDING * 2.0) / 2.0;
+
+                if self.always_on_top {
+                    // Filled white circle when pinned
+                    ui.painter().circle_filled(
+                        pin_center,
+                        pin_radius,
+                        egui::Color32::from_rgb(PIN_BTN_ACTIVE_COLOR.0, PIN_BTN_ACTIVE_COLOR.1, PIN_BTN_ACTIVE_COLOR.2),
+                    );
+                } else {
+                    // Unfilled circle (just stroke)
+                    let pin_color = if pin_hovered {
+                        egui::Color32::from_rgb(PIN_BTN_ACTIVE_COLOR.0, PIN_BTN_ACTIVE_COLOR.1, PIN_BTN_ACTIVE_COLOR.2)
+                    } else {
+                        egui::Color32::from_rgb(PIN_BTN_COLOR.0, PIN_BTN_COLOR.1, PIN_BTN_COLOR.2)
+                    };
+                    ui.painter().circle_stroke(
+                        pin_center,
+                        pin_radius,
+                        egui::Stroke::new(CLOSE_BTN_STROKE, pin_color),
+                    );
+                }
+
+                if pin_clicked {
+                    self.always_on_top = !self.always_on_top;
+                    let level = if self.always_on_top {
+                        egui::WindowLevel::AlwaysOnTop
+                    } else {
+                        egui::WindowLevel::Normal
+                    };
+                    ctx.send_viewport_cmd(egui::ViewportCommand::WindowLevel(level));
                 }
 
                 // Draw info button (i)

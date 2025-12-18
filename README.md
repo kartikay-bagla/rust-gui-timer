@@ -12,6 +12,7 @@ A minimal, borderless desktop timer application built with Rust and egui.
 - Supports decimal minutes (e.g., `1.5` for 90 seconds)
 - Visual flashing alert when timer completes
 - Draggable from the top title bar region
+- Always-on-top toggle (pin button in top-left corner)
 - Custom close button
 
 ## Usage
@@ -25,15 +26,18 @@ A minimal, borderless desktop timer application built with Rust and egui.
 ## Controls
 
 - **Drag**: Click and drag the top bar area to move the window
+- **Pin (Always on Top)**: Click the circle button in the top-left corner to toggle always-on-top mode (filled = pinned)
 - **Close**: Click the X button in the top-right corner
 - **Info**: Click the i button to view license and GitHub link
 - **Start timer**: Enter minutes and press Enter or click Start
 - **Cancel**: Click Cancel while timer is running
 - **Reset**: Click Reset when timer finishes
 
-## Always on Top (KDE)
+## Always on Top
 
-To keep the timer above other windows on KDE Plasma:
+The app includes a built-in always-on-top toggle (circle button in the top-left corner). Click it to pin the window above other windows.
+
+**Alternative method for KDE Plasma** (if the built-in toggle doesn't work):
 
 1. Right-click on the app in the taskbar
 2. Select "More Actions" → "Configure Special Window Settings"
@@ -68,6 +72,27 @@ The optimized binary will be at `target/release/timer-app`.
 
 ## Installation
 
+### macOS
+
+Build and install the app bundle:
+
+```bash
+# Install cargo-bundle (one-time)
+cargo install cargo-bundle
+
+# Build the app bundle
+cargo bundle --release
+
+# Copy to Applications
+cp -r target/release/bundle/osx/Timer.app /Applications/
+```
+
+The app will appear in Launchpad and can be launched from Finder.
+
+**Note**: On first launch, macOS may show a security warning for unsigned apps. Right-click the app and select "Open" to bypass this.
+
+### Linux
+
 ```bash
 # Copy binary and icon
 mkdir -p ~/.local/bin
@@ -86,10 +111,12 @@ The app will appear in your application menu/launcher.
 ```
 desktop-timer/
 ├── Cargo.toml          # Dependencies and project metadata
-├── icon.png            # Application icon
+├── icon.png            # Application icon (PNG)
+├── icons/
+│   └── timer-app.icns  # macOS icon format
 ├── LICENSE             # GPL v3 license
 ├── README.md           # This file
-├── timer-app.desktop   # Desktop entry for app launchers
+├── timer-app.desktop   # Desktop entry for Linux launchers
 └── src/
     └── main.rs         # Application source code
 ```
@@ -111,6 +138,15 @@ All constants are defined at the top of `src/main.rs`:
 
 - [eframe](https://github.com/emilk/egui/tree/master/crates/eframe) - egui framework for native apps
 - [image](https://github.com/image-rs/image) - Icon loading
+
+## Changelog
+
+### v1.1.0
+- Added always-on-top pin button (circle in top-left corner)
+- Added macOS app bundle support via cargo-bundle
+
+### v1.0.0
+- Initial release
 
 ## License
 
