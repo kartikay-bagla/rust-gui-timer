@@ -94,6 +94,9 @@ The app will appear in Launchpad and can be launched from Finder.
 ### Linux
 
 ```bash
+# Build release binary
+cargo build --release
+
 # Copy binary and icon
 mkdir -p ~/.local/bin
 cp target/release/timer-app ~/.local/bin/
