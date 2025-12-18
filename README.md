@@ -109,6 +109,26 @@ chmod +x ~/.local/share/applications/timer-app.desktop
 
 The app will appear in your application menu/launcher.
 
+## Releasing a New Version
+
+1. Update version in `Cargo.toml` (both `[package]` and `[package.metadata.bundle]` sections)
+2. Update the Changelog section in this README
+3. Build and test:
+   ```bash
+   cargo build --release
+   cargo bundle --release  # macOS
+   ```
+4. Commit changes:
+   ```bash
+   git add -A
+   git commit -m "Release vX.Y.Z: Brief description"
+   ```
+5. Create and push tag:
+   ```bash
+   git tag vX.Y.Z
+   git push origin main --tags
+   ```
+
 ## Project Structure
 
 ```
