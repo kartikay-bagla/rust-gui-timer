@@ -1,7 +1,11 @@
 [package]
 name = "timer-app"
 version = "1.1.0"
-edition = "2021"
+edition = "2025"
+description = "A minimal desktop timer"
+license = "GPL-3.0"
+repository = "https://github.com/kartikay-bagla/desktop-timer"
+authors = ["Kartikay Bagla"]
 
 [dependencies]
 eframe = "0.29"
