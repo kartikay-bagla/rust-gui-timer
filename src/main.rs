@@ -17,7 +17,7 @@ const INPUT_WIDTH: f32 = 80.0;
 
 // Spacing
 const INPUT_SPACING: f32 = 20.0;
-const TIMER_BUTTON_SPACING: f32 = 30.0;
+const TIMER_BUTTON_SPACING: f32 = 15.0;
 
 // Content heights for vertical centering
 const INPUT_CONTENT_HEIGHT: f32 = 120.0;
@@ -76,6 +76,7 @@ fn main() -> eframe::Result<()> {
 enum TimerState {
     Input,
     Running,
+    Paused,
     Finished,
 }
 
@@ -85,6 +86,7 @@ struct TimerApp {
     duration_secs: u64,
     remaining_secs: u64,
     start_time: Option<Instant>,
+    paused_elapsed: u64,
     flash_on: bool,
     last_flash: Instant,
     show_info: bool,
@@ -99,6 +101,7 @@ impl Default for TimerApp {
             duration_secs: 0,
             remaining_secs: 0,
             start_time: None,
+            paused_elapsed: 0,
             flash_on: false,
             last_flash: Instant::now(),
             show_info: false,
@@ -110,7 +113,7 @@ impl Default for TimerApp {
 impl eframe::App for TimerApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         // Request continuous repaints when timer is active
-        if self.state == TimerState::Running || self.state == TimerState::Finished {
+        if self.state == TimerState::Running || self.state == TimerState::Paused || self.state == TimerState::Finished {
             ctx.request_repaint();
         }
 
@@ -281,8 +284,7 @@ impl eframe::App for TimerApp {
                     // Estimate content heights for vertical centering
                     let content_height = match self.state {
                         TimerState::Input => INPUT_CONTENT_HEIGHT,
-                        TimerState::Running => TIMER_CONTENT_HEIGHT,
-                        TimerState::Finished => TIMER_CONTENT_HEIGHT,
+                        TimerState::Running | TimerState::Paused | TimerState::Finished => TIMER_CONTENT_HEIGHT,
                     };
                     let available_height = ui.available_height();
                     let top_padding = (available_height - content_height) / 2.0;
@@ -322,6 +324,27 @@ impl eframe::App for TimerApp {
                             ).selectable(false));
                             ui.add_space(TIMER_BUTTON_SPACING);
 
+                            if ui.button("Pause").clicked() {
+                                self.pause();
+                            }
+                            if ui.button("Cancel").clicked() {
+                                self.reset();
+                            }
+                        }
+
+                        TimerState::Paused => {
+                            let time_str = format_time(self.remaining_secs);
+                            ui.add(egui::Label::new(
+                                egui::RichText::new(time_str)
+                                    .size(TIMER_FONT_SIZE)
+                                    .color(egui::Color32::GRAY)
+                                    .monospace(),
+                            ).selectable(false));
+                            ui.add_space(TIMER_BUTTON_SPACING);
+
+                            if ui.button("Resume").clicked() {
+                                self.resume();
+                            }
                             if ui.button("Cancel").clicked() {
                                 self.reset();
                             }
@@ -368,7 +391,20 @@ impl TimerApp {
         self.state = TimerState::Input;
         self.minutes_input.clear();
         self.start_time = None;
+        self.paused_elapsed = 0;
         self.flash_on = false;
+    }
+
+    fn pause(&mut self) {
+        if let Some(start) = self.start_time {
+            self.paused_elapsed = start.elapsed().as_secs();
+            self.state = TimerState::Paused;
+        }
+    }
+
+    fn resume(&mut self) {
+        self.start_time = Some(Instant::now() - Duration::from_secs(self.paused_elapsed));
+        self.state = TimerState::Running;
     }
 }
 
